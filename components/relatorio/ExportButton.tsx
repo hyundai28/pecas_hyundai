@@ -28,7 +28,7 @@ export function ExportButton({ data, startDate, endDate, loading }: ExportButton
       if (!item.pecas || item.pecas.length === 0) {
         return [
           [
-            item.dealerCode,
+            item.dealer_name,
             item.numeroNF,
             item.ordemServico,
             chassiValue,
@@ -41,7 +41,7 @@ export function ExportButton({ data, startDate, endDate, loading }: ExportButton
         ];
       }
       return item.pecas.map((peca) => [
-        item.dealerCode,
+        item.dealer_name,
         item.numeroNF,
         item.ordemServico,
         chassiValue,
