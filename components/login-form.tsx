@@ -67,8 +67,8 @@ export function LoginForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  type="text"
+                  placeholder="B05AM..."
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
