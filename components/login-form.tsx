@@ -32,9 +32,13 @@ export function LoginForm({
     setIsLoading(true);
     setError(null);
 
+    const normalizedEmail = email.includes("@")
+      ? email
+      : `${email}@login.local`;
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: normalizedEmail,
         password,
       });
       if (error) throw error;
