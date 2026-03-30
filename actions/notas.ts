@@ -28,14 +28,19 @@ export async function createNotaFiscal(formData: FormPayload) {
     return { success: false, error: "Usuário não autenticado." };
   }
 
-  const dealerName = user?.user_metadata?.dealer 
+  const { data: userData, error: userError } = await supabase_server
+    .from("users")
+    .select("dealer_code, dealer_name")
+    .eq("id", user.id)
+    .single();
 
-  if (!dealerName) {
+  if (userError || !userData) {
     return {
       success: false,
-      error: "Metadados do revendedor ausentes.",
+      error: "Dados do dealer não encontrados.",
     };
   }
+  const { dealer_code, dealer_name } = userData;
 
   // 2️⃣ Conversões
   const valorNF_float = convertToFloat(values.valorNF);
@@ -54,7 +59,8 @@ export async function createNotaFiscal(formData: FormPayload) {
     observacao: values.observacao || null,
 
     // 🔥 METADATA SUPABASE
-    dealer_name: dealerName,
+    dealer_name,
+    dealer_code,
     user_id: user.id,
 
     tipo_de_venda: values.tipoDeVenda,
