@@ -33,11 +33,14 @@ export default function DashboardPage() {
   const [globalFilter, setGlobalFilter] = useState(""); // Novo state para filtro
 
   // Filtra os itens com base no globalFilter (por dealerCode, case-insensitive)
- const filteredItems = data.items.filter((item) =>
-  (item.dealer_name ?? "")
-    .toLowerCase()
-    .includes(globalFilter.toLowerCase()),
-);
+  const filteredItems = data.items.filter((item) => {
+    const filter = globalFilter.toLowerCase();
+
+    return (
+      (item.dealer_name ?? "").toLowerCase().includes(filter) ||
+      (item.dealer_code ?? "").toLowerCase().includes(filter)
+    );
+  });
 
   // Atualiza count baseado nos filtrados (opcional, mas mantém consistência nos cards/export)
   const filteredCount = filteredItems.length;

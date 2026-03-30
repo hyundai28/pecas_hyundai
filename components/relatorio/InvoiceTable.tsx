@@ -38,9 +38,7 @@ export function InvoiceTable({
   globalFilter,
   setGlobalFilter,
 }: InvoiceTableProps) {
-  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({
@@ -69,12 +67,16 @@ export function InvoiceTable({
         </div>
       ),
     },
-
-    // ✅ dealer_name
     {
-      accessorKey: "dealer_name",
       header: "Dealer",
-      cell: ({ row }) => row.original.dealer_name || "-",
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span>{row.original.dealer_name}</span>
+          <span className="text-sm text-muted-foreground font-mono">
+            {row.original.dealer_code.toUpperCase()}
+          </span>
+        </div>
+      ),
     },
 
     { accessorKey: "numeroNF", header: "Nº NF" },
@@ -84,9 +86,7 @@ export function InvoiceTable({
       accessorKey: "chassi",
       header: "Chassi",
       cell: ({ row }) => (
-        <div className="font-mono text-sm">
-          {row.original.chassi || "-"}
-        </div>
+        <div className="font-mono text-sm">{row.original.chassi || "-"}</div>
       ),
     },
 
@@ -103,9 +103,7 @@ export function InvoiceTable({
       accessorKey: "valorNF",
       header: () => <div className="text-right">Valor NF</div>,
       cell: ({ row }) => (
-        <div className="text-right">
-          {formatCurrency(row.original.valorNF)}
-        </div>
+        <div className="text-right">{formatCurrency(row.original.valorNF)}</div>
       ),
     },
 
@@ -143,7 +141,7 @@ export function InvoiceTable({
       <Input
         placeholder="Filtrar por Dealer..."
         value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
+        onChange={(e) => setGlobalFilter(e.target.value.toUpperCase())}
         className="max-w-sm"
       />
 

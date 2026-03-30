@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, FileText, BarChart3 } from "lucide-react";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useSupabaseUser } from "@/hooks/use-supabase-user";
 import { LogOut } from "lucide-react";
+import Image from "next/image";
 
 interface DashboardSidebarProps {
   isAdmin: boolean;
@@ -16,9 +17,11 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dealerName, setDealerName] = useState<string | null>(null);
   const pathname = usePathname();
   const { user } = useSupabaseUser();
 
+  
   const supabase = createClient()
 
   const handleLogout = async () => {
@@ -42,6 +45,27 @@ export function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
   ];
 
   const visibleItems = menuItems.filter((item) => item.visible);
+
+
+  useEffect(() => {
+  const fetchDealer = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("dealer_name")
+      .eq("id", user.id)
+      .single();
+
+    if (!error && data) {
+      setDealerName(data.dealer_name);
+    }
+  };
+
+  fetchDealer();
+}, [user, supabase]);
+
+
 
   return (
     <>
@@ -73,14 +97,7 @@ export function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
       >
         {/* Logo Section */}
         <div className="p-6 border-b border-slate-700 flex items-center justify-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white">
-              H
-            </div>
-            <Link href="/">
-              <span className="font-bold text-lg">Dashboard</span>
-            </Link>
-          </div>
+          <Image src={'/Hyundai_logo_dark.png'} alt="Hyundai_logo" width={170} height={170}/>
         </div>
 
         {/* Navigation Menu */}
@@ -113,7 +130,7 @@ export function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
           <div className="text-xs text-slate-400 flex flex-row items-center justify-between">
             <div className="flex flex-col gap-2 w-full">
               <div className="text-xs text-slate-400 truncate">
-                {user?.email}
+                {dealerName}
               </div>
 
               <button

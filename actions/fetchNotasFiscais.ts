@@ -14,6 +14,7 @@ import {
 interface DashboardFilters {
   startDate?: string;
   endDate?: string;
+  globalFilter?: string; // new
 }
 
 /* ===============================
@@ -21,7 +22,7 @@ interface DashboardFilters {
 =============================== */
 
 export async function fetchDashboardData(
-  filters: DashboardFilters
+  filters: DashboardFilters,
 ): Promise<DashboardData | { error: string }> {
   /* ---------- 1. Client + Auth ---------- */
 
@@ -39,9 +40,11 @@ export async function fetchDashboardData(
 
   let query = supabase
     .from("notas_fiscais")
-    .select(`
+    .select(
+      `
       id,
       dealer_name,
+      dealer_code,
       ordem_servico,
       chassi,
       numero_nf,
@@ -56,7 +59,8 @@ export async function fetchDashboardData(
         codigo,
         valor
       )
-    `)
+    `,
+    )
     .order("data_nf", { ascending: false });
 
   if (filters.startDate) {
@@ -67,8 +71,15 @@ export async function fetchDashboardData(
     query = query.lte("data_nf", filters.endDate);
   }
 
-  const { data, error } =
-    await query.returns<NotaFiscalDB[]>();
+  if (filters.globalFilter) {
+    const filter = filters.globalFilter.toLowerCase();
+
+    query = query.or(
+      `dealer_name.ilike.%${filter}%,dealer_code.ilike.%${filter}%`,
+    );
+  }
+
+  const { data, error } = await query.returns<NotaFiscalDB[]>();
 
   if (error) {
     console.error("Erro dashboard:", error);
@@ -79,61 +90,46 @@ export async function fetchDashboardData(
 
   /* ---------- 3. Transformação ---------- */
 
-  const items: NotaFiscalDashboardItem[] = itemsDB.map(
-    (item) => ({
-      id: item.id,
+  const items: NotaFiscalDashboardItem[] = itemsDB.map((item) => ({
+    id: item.id,
 
-      dealer_name: item.dealer_name ?? "-", // ✅ agora correto
+    dealer_name: item.dealer_name ?? "-", // ✅ agora correto
+    dealer_code: item.dealer_code ?? "-",
 
-      ordemServico: item.ordem_servico,
-      numeroNF: item.numero_nf,
-      dataNF: item.data_nf,
+    ordemServico: item.ordem_servico,
+    numeroNF: item.numero_nf,
+    dataNF: item.data_nf,
 
-      tipoDeVenda: item.tipo_de_venda,
-      chassi: item.chassi,
+    tipoDeVenda: item.tipo_de_venda,
+    chassi: item.chassi,
 
-      valorNF: item.valor_nf
-        .toFixed(2)
-        .replace(".", ","),
+    valorNF: item.valor_nf.toFixed(2).replace(".", ","),
 
-      valorNFFloat: item.valor_nf,
+    valorNFFloat: item.valor_nf,
 
-      numOSFranquia:
-        item.num_os_franquia ?? undefined,
+    numOSFranquia: item.num_os_franquia ?? undefined,
 
-      numNFFranquia:
-        item.num_nf_franquia ?? undefined,
+    numNFFranquia: item.num_nf_franquia ?? undefined,
 
-      valorFranquia: item.valor_franquia
-        ? item.valor_franquia
-            .toFixed(2)
-            .replace(".", ",")
-        : undefined,
+    valorFranquia: item.valor_franquia
+      ? item.valor_franquia.toFixed(2).replace(".", ",")
+      : undefined,
 
-      pecas: (item.nf_pecas ?? []).map(
-        (peca) => ({
-          id: peca.id,
-          codigo: peca.codigo,
-          valor: peca.valor
-            .toFixed(2)
-            .replace(".", ","),
-          valorFloat: peca.valor,
-        })
-      ),
-    })
-  );
+    pecas: (item.nf_pecas ?? []).map((peca) => ({
+      id: peca.id,
+      codigo: peca.codigo,
+      valor: peca.valor.toFixed(2).replace(".", ","),
+      valorFloat: peca.valor,
+    })),
+  }));
 
   /* ---------- 4. Métricas ---------- */
 
-  const totalValue = items.reduce(
-    (sum, item) => sum + item.valorNFFloat,
-    0
-  );
+  const totalValue = items.reduce((sum, item) => sum + item.valorNFFloat, 0);
 
   const count = items.length;
 
-  const averageValue =
-    count > 0 ? totalValue / count : 0;
+  const averageValue = count > 0 ? totalValue / count : 0;
 
   /* ---------- 5. Retorno ---------- */
 

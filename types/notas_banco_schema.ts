@@ -10,6 +10,7 @@ export interface NotaFiscalDashboardItem {
   numNFFranquia?: string;
   valorFranquia?: string;
   dealer_name: string;
+  dealer_code: string;
   chassi?: string | null;
   pecas: {
     id: string;
@@ -38,6 +39,7 @@ export interface NotaFiscalDB {
   num_nf_franquia: string | null;
   valor_franquia: number | null;
   dealer_name: string;
+  dealer_code: string;
 
   nf_pecas?: {
     id: string;
