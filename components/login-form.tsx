@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
+//import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -57,14 +57,14 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Hyundai Peças Form
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Cód. Dealer</Label>
+                <Label htmlFor="email">Código Dealer</Label>
                 <Input
                   id="email"
                   type="text"
@@ -75,7 +75,7 @@ export function LoginForm({
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <Label htmlFor="password">Senha</Label>
                   <Link
                     href="/auth/forgot-password"
@@ -83,13 +83,14 @@ export function LoginForm({
                   >
                     Forgot your password?
                   </Link>
-                </div>
+                </div> */}
+                <Label htmlFor="email">Senha</Label>
                 <Input
                   id="password"
                   type="password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value.toUpperCase())}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
